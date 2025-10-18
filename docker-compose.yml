@@ -1,0 +1,32 @@
+services:
+  web:
+    build: ./app-php
+    container_name: nube-web
+    hostname: 	nube-web
+    environment:
+      DB_HOST: nube-db
+      DB_PORT: 3306
+      DB_NAME: empresa
+      DB_USER: appuser
+      DB_PASSWORD_: root
+    ports:
+      - "8080:80"
+  db:
+    image: mariadb:11
+    container_name: nube-db
+    environment:
+      MARIADB_DATABASE: empresa
+      MARIADB_USER: appuser
+      MARIADB_PASSWORD: apppass
+      MARIADB_ROOT_PASSWORD: root
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "mariadb-appuser ping -uroot -proot || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+volumes:
+  db_data:
